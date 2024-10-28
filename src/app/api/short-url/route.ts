@@ -13,9 +13,11 @@ export async function POST(request: Request) {
     // Parse and validate the request body
     const body = await request.json();
     const parsedBody = requestSchema.parse(body);
-
+    
     // Extract values
     const { value, ownerID } = parsedBody;
+
+    if (!value || !ownerID) throw new Error("Please provide a proper input")
 
     // Call the function to insert the short link
     const shortUrl = await insertShortLink(value, ownerID);

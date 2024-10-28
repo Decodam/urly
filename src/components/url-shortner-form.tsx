@@ -5,14 +5,19 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import confetti from "canvas-confetti";
 import { useState } from "react";
-
+import { useAuth } from "@clerk/nextjs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LinkIcon, ClipboardCopyIcon, XIcon, Share2Icon } from "lucide-react";
-import { siteUrl } from "@/lib/constant";
+import {
+  LoaderIcon,
+  ClipboardCopyIcon,
+  XIcon,
+  Share2Icon,
+  LinkIcon,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { handleShare } from "@/lib/utils";
+import { handleShare, setOrGetAnonKey } from "@/lib/utils";
 
 // Define form schema with Zod
 const formSchema = z.object({
@@ -24,7 +29,9 @@ const formSchema = z.object({
 
 export function UrlShortenerForm() {
   const { toast } = useToast();
+  const { userId } = useAuth();
   const [shortenedUrl, setShortenedUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -34,15 +41,43 @@ export function UrlShortenerForm() {
   // Handle form submission
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      // Simulate a URL shortening response
-      const simulatedShortUrl = `${siteUrl}/afij3o2`;
-      
+      setLoading(true);
+      const anonKey = setOrGetAnonKey();
+
+      // Make the API call to shorten the URL
+      const response = await fetch("/api/short-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          value: values.originalUrl,
+          ownerID: userId || anonKey, // TODO: implement anon url creation
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to shorten URL");
+      }
+
+      // Parse the response
+      const data = await response.json();
+      const shortenedUrl = data.shortUrl;
+
       // Trigger confetti on success
-      setShortenedUrl(simulatedShortUrl);
+      setShortenedUrl(shortenedUrl);
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-      handleShare(simulatedShortUrl);
+
+      // Share the shortened URL
+      handleShare(shortenedUrl);
+      setLoading(false);
     } catch (error) {
-      console.error("URL shortening failed", error);
+      toast({
+        variant: "destructive",
+        title: "Failed to create short link!",
+        description: "Something went wrong! " + error,
+      });
+      setLoading(false);
     }
   }
 
@@ -109,7 +144,11 @@ export function UrlShortenerForm() {
                   className="size-11 font-medium"
                   size="icon"
                 >
-                  <LinkIcon size={20} />
+                  {loading ? (
+                    <LoaderIcon className="animate-spin" />
+                  ) : (
+                    <LinkIcon size={20} />
+                  )}
                 </Button>
               </div>
               {form.formState.errors.originalUrl && (

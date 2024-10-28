@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { shortLinks } from "./schema";
-import { siteUrl } from "@/lib/constant";
+import { convertKeyToLink } from "@/lib/utils";
 
 function generateUniqueKey(length: number): string {
   const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -35,7 +35,7 @@ export async function insertShortLink(value: string, ownerID: string) {
         value: value,
         ownerID: ownerID,
       });
-      return `${siteUrl}/${uniqueKey}`; // Return the full URL
+      return convertKeyToLink(uniqueKey); // Return the full URL
     }
 
     // If the key is not unique, increase the length for the next attempt
@@ -55,6 +55,16 @@ export async function getShortLink(key: string) {
     .execute();
 
   return shortLink.length > 0 ? shortLink[0] : null;
+}
+
+export async function getOwnerShortLinks(ownerID: string) {
+  const ownerLinks = await db
+    .select()
+    .from(shortLinks)
+    .where(eq(shortLinks.ownerID, ownerID))
+    .execute();
+
+  return ownerLinks;
 }
 
 export async function deleteShortLink(key: string) {
