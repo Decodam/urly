@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { shortLinks } from "./schema";
-import { siteUrl } from "@/lib/constant";
 import { convertKeyToLink } from "@/lib/utils";
 
 function generateUniqueKey(length: number): string {
