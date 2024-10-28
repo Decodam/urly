@@ -33,14 +33,12 @@ export function UrlShortenerForm() {
 
   // Handle form submission
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("URL to shorten:", values.originalUrl);
-
     try {
       // Simulate a URL shortening response
       const simulatedShortUrl = `${siteUrl}/afij3o2`;
-      setShortenedUrl(simulatedShortUrl);
-
+      
       // Trigger confetti on success
+      setShortenedUrl(simulatedShortUrl);
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       handleShare(simulatedShortUrl);
     } catch (error) {
