@@ -5,7 +5,7 @@ import Navbar from "@/components/navbar";
 import { useState, useEffect } from "react"; // Import useEffect for data fetching
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input"; // Import the Input component for the search form
-import { Link2Icon, MoreVerticalIcon } from "lucide-react";
+import { Link2Icon, MoreVerticalIcon, LoaderIcon } from "lucide-react"; // Import the LoaderIcon
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +28,7 @@ interface ShortLink {
 export default function YourLinks() {
   const [links, setLinks] = useState<ShortLink[]>([]); // State for storing fetched links
   const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true); // State to track loading status
 
   // Fetch short URLs
   const fetchLinks = async () => {
@@ -49,6 +50,8 @@ export default function YourLinks() {
       setLinks(sortedLinks); // Update state with sorted links
     } catch (error) {
       console.error("Error fetching links:", error);
+    } finally {
+      setLoading(false); // Set loading to false after the fetch operation completes
     }
   };
 
@@ -64,7 +67,7 @@ export default function YourLinks() {
   return (
     <>
       <Navbar />
-      <main className="px-4 container">
+      <main className="px-4 pb-14 container">
         <section className="min-h-svh max-sm:mt-14 flex flex-col justify-center items-center gap-6">
           <div className="text-center space-y-4">
             <h1 className="text-foreground text-7xl font-semibold">Your Links</h1>
@@ -85,39 +88,45 @@ export default function YourLinks() {
 
           {/* Link Cards Section */}
           <div className="flex flex-col gap-4 max-w-lg w-full">
-            {filteredLinks.map((link) => (
-              <Card key={link.id} className="hover:border-blue-500 transition-all duration-300 flex">
-                <CardContent className="p-4 flex justify-between items-center w-full">
-                  <div className="flex-1">
-                    <Link href={convertKeyToLink(link.key)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-x-2">
-                      <Link2Icon /> <CardTitle>{convertKeyToLink(link.key)}</CardTitle>
-                    </Link>
-                    <CardDescription>
-                      {link.value.length > 50
-                        ? `${link.value.substring(0, 50)}...`
-                        : link.value}
-                    </CardDescription>
-                  </div>
-                  {/* Dropdown Menu */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="size-8 justify-center items-center flex hover:bg-muted rounded-md">
-                      <MoreVerticalIcon size={20} className="cursor-pointer" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      <DropdownMenuItem onClick={() => handleShare(convertKeyToLink(link.key))}>Share</DropdownMenuItem>
-                      <DestructiveDropdownMenuItem onClick={() => {
-                        // Implement delete functionality here
-                        console.log('Delete link:', link.value);
-                      }}>
-                        Delete
-                      </DestructiveDropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </CardContent>
-              </Card>
-            ))}
-
-            {filteredLinks.length === 0 && <p className="text-center text-muted-foreground text-sm">No links created yet...</p>}
+            {loading ? ( // Show loader if loading
+              <div className="flex justify-center items-center py-4">
+                <LoaderIcon size={24} className="animate-spin" /> {/* Adjust icon size and animation */}
+              </div>
+            ) : filteredLinks.length > 0 ? (
+              filteredLinks.map((link) => (
+                <Card key={link.id} className="hover:border-blue-500 transition-all duration-300 flex">
+                  <CardContent className="p-4 flex justify-between items-center w-full">
+                    <div className="flex-1">
+                      <Link href={convertKeyToLink(link.key)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-x-2">
+                        <Link2Icon /> <CardTitle>{convertKeyToLink(link.key)}</CardTitle>
+                      </Link>
+                      <CardDescription>
+                        {link.value.length > 50
+                          ? `${link.value.substring(0, 50)}...`
+                          : link.value}
+                      </CardDescription>
+                    </div>
+                    {/* Dropdown Menu */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="size-8 justify-center items-center flex hover:bg-muted rounded-md">
+                        <MoreVerticalIcon size={20} className="cursor-pointer" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem onClick={() => handleShare(convertKeyToLink(link.key))}>Share</DropdownMenuItem>
+                        <DestructiveDropdownMenuItem onClick={() => {
+                          // Implement delete functionality here
+                          console.log('Delete link:', link.value);
+                        }}>
+                          Delete
+                        </DestructiveDropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <p className="text-center text-muted-foreground text-sm">No results found...</p> // No links found message
+            )}
           </div>
         </section>
       </main>
