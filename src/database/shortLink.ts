@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { shortLinks } from "./schema";
 import { siteUrl } from "@/lib/constant";
+import { convertKeyToLink } from "@/lib/utils";
 
 function generateUniqueKey(length: number): string {
   const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -35,7 +36,7 @@ export async function insertShortLink(value: string, ownerID: string) {
         value: value,
         ownerID: ownerID,
       });
-      return `${siteUrl}/${uniqueKey}`; // Return the full URL
+      return convertKeyToLink(uniqueKey); // Return the full URL
     }
 
     // If the key is not unique, increase the length for the next attempt

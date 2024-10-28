@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { siteUrl } from "./constant";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -40,4 +41,8 @@ export function setOrGetAnonKey() {
   }
 
   return anonKey;
+}
+
+export function convertKeyToLink(key: string) {
+  return `${siteUrl}/r/${key}`;
 }

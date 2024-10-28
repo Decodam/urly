@@ -42,7 +42,7 @@ export function UrlShortenerForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setLoading(true);
-      const anonKey = setOrGetAnonKey()
+      const anonKey = setOrGetAnonKey();
 
       // Make the API call to shorten the URL
       const response = await fetch("/api/short-url", {
