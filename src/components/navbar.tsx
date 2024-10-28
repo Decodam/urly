@@ -1,3 +1,5 @@
+"use client"
+
 import { ThemeToggleIconButton } from "@/components/ui/theme";
 import { Button } from "@/components/ui/button";
 import { UserIcon, MenuIcon } from "lucide-react";
@@ -10,10 +12,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SignedIn, SignedOut, UserButton, useClerk } from "@clerk/nextjs";
 
 export default function Navbar({}) {
-  let user;
-
+  const clerk = useClerk()
+  
   return (
     <nav className="fixed top-0 w-full bg-white/10 dark:bg-neutral-950/30 backdrop-blur-md border-b px-4 py-2 flex justify-between items-center">
       <img src="/logo.png" alt="" className="size-10 rounded-lg" />
@@ -32,13 +35,15 @@ export default function Navbar({}) {
       </ul>
 
       <div className="nav-left flex items-center gap-4">
-        {user ? (
-          <h1>user</h1>
-        ) : (
-          <Button size="icon" variant="outline">
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+
+        <SignedOut>
+          <Button onClick={() => {clerk.openSignIn()}} size="icon" variant="outline">
             <UserIcon />
           </Button>
-        )}
+        </SignedOut>
 
         <ThemeToggleIconButton />
 
