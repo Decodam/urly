@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Urly - Short it",
-  description: "Blazing fast url shortner",
+  description: "Blazing fast, open source url shortner",
 };
 
 export default function RootLayout({
