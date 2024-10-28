@@ -57,6 +57,16 @@ export async function getShortLink(key: string) {
   return shortLink.length > 0 ? shortLink[0] : null;
 }
 
+export async function getOwnerShortLinks(ownerID: string) {
+  const ownerLinks = await db
+    .select()
+    .from(shortLinks)
+    .where(eq(shortLinks.ownerID, ownerID))
+    .execute();
+
+  return ownerLinks;
+}
+
 export async function deleteShortLink(key: string) {
   const result = await db
     .delete(shortLinks)

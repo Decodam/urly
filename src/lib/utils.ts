@@ -24,3 +24,20 @@ export const handleShare = (url: string) => {
     console.log("Share this link manually:", url);
   }
 };
+
+export function setOrGetAnonKey() {
+  const key = "anonKey";
+
+  // Check if the key already exists in localStorage
+  let anonKey = localStorage.getItem(key);
+
+  if (!anonKey) {
+    // Generate a random 32-character string (e.g., alphanumeric)
+    anonKey = "local_" + Math.random().toString(36).substring(2, 34);
+
+    // Store it in localStorage
+    localStorage.setItem(key, anonKey);
+  }
+
+  return anonKey;
+}

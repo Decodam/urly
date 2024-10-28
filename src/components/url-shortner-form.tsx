@@ -17,7 +17,7 @@ import {
   LinkIcon,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { handleShare } from "@/lib/utils";
+import { handleShare, setOrGetAnonKey } from "@/lib/utils";
 
 // Define form schema with Zod
 const formSchema = z.object({
@@ -42,6 +42,7 @@ export function UrlShortenerForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setLoading(true);
+      const anonKey = setOrGetAnonKey()
 
       // Make the API call to shorten the URL
       const response = await fetch("/api/short-url", {
@@ -51,7 +52,7 @@ export function UrlShortenerForm() {
         },
         body: JSON.stringify({
           value: values.originalUrl,
-          ownerID: userId || "loc-w213r7hhfi", // TODO: implement anon url creation
+          ownerID: userId || anonKey, // TODO: implement anon url creation
         }),
       });
 
